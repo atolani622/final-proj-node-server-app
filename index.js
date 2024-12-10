@@ -1,16 +1,13 @@
-import "dotenv/config";
-import express from 'express';
-import cors from 'cors';
-import pkg from 'body-parser';
-import mongoose from "mongoose";
+import express from "express";
+import cors from "cors";
 import session from "express-session";
-const { json } = pkg;
+import "dotenv/config";
 
+import UserRoutes from "./Users/routes.js"
+
+import mongoose from "mongoose";
 const CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING || "mongodb://127.0.0.1:27017/project"
 mongoose.connect(CONNECTION_STRING);
-
-import recipesRoutes from './routes/recipes.js'
-import UserRoutes from './Users/routes.js'
 
 const app = express();
 app.use(
@@ -34,22 +31,12 @@ if (process.env.NODE_ENV !== "development") {
 }
 app.use(session(sessionOptions));
 
-// Middleware to parse JSON requests
+
 app.use(express.json());
 
+UserRoutes(app);
 
-const PORT = 4000;
-
-// Middleware
-app.use(cors());
-app.use(json());
-
-// Routes
-app.use('/api/recipes', recipesRoutes);
-UserRoutes(app)
-
-// Start server
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
-
