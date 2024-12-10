@@ -9,7 +9,6 @@ const { json } = pkg;
 const CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING || "mongodb://127.0.0.1:27017/project"
 mongoose.connect(CONNECTION_STRING);
 
-// Import routes
 import recipesRoutes from './routes/recipes.js'
 import UserRoutes from './Users/routes.js'
 
