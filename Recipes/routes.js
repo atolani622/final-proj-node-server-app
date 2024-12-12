@@ -1,6 +1,5 @@
 import RecipeModel from './model.js'; // Import the Recipe model
 import UserModel from '../Users/model.js'; // Import the User model
-import * as dao from './dao.js'
 import axios from "axios";
 
 const SPOONACULAR_API_KEY = process.env.SPOONACULAR_API_KEY;
@@ -41,6 +40,37 @@ export default function RecipeRoutes(app) {
         }
     };
 
+    app.post("/api/recipes/like", likeRecipe);
+
+    const getLikedRecipes = async (req, res) => {
+        const { userId } = req.params;
+        const apiKey = process.env.SPOONACULAR_API_KEY;
+    
+        try {
+            // Fetch the user's liked recipe IDs
+            const user = await UserModel.findById(userId);
+            const recipeIds = user.likedRecipes; // Assume this is an array of IDs
+    
+            // Fetch details for each recipe ID concurrently
+            const recipeDetails = await Promise.all(
+                recipeIds.map(async (id) => {
+                    const response = await axios.get(`https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}`);
+                    return response.data;
+                })
+            );
+    
+            // Send the full recipe details back
+            res.json(recipeDetails);
+        } catch (error) {
+            console.error("Error fetching liked recipes:", error.message);
+            res.status(500).json({ error: "Failed to fetch liked recipes." });
+        }
+    };
+    
+    app.get("/api/recipes/liked/:userId", getLikedRecipes);
+    
+
+
     // Follow a chef (add chefId to user's following array)
     const followChef = async (req, res) => {
         const { userId, chefId } = req.body;
@@ -52,28 +82,6 @@ export default function RecipeRoutes(app) {
             res.status(200).json({ message: "Chef followed successfully" });
         } catch (error) {
             res.status(500).json({ message: "Failed to follow chef", error });
-        }
-    };
-
-    // Find all liked recipes by a user
-    const findLikedRecipes = async (req, res) => {
-        const { userId } = req.params;
-
-        try {
-            // Fetch the user's likedRecipes (array of recipe IDs)
-            const user = await UserModel.findById(userId);
-            if (!user) {
-                return res.status(404).json({ message: "User not found" });
-            }
-
-            const likedRecipeIds = user.likedRecipes;
-
-            // Use the IDs to fetch the full recipe details
-            const recipes = await RecipeModel.find({ _id: { $in: likedRecipeIds } });
-
-            res.json(recipes);
-        } catch (error) {
-            res.status(500).json({ message: "Failed to fetch liked recipes", error });
         }
     };
 
@@ -108,9 +116,7 @@ export default function RecipeRoutes(app) {
 
 
     // Define routes
-    // app.get('/api/recipes', findAllRecipes);         // Route to fetch all recipes
-    app.post('/api/recipes/like', likeRecipe);       // Route to like a recipe
-    app.post('/api/users/follow', followChef);       // Route to follow a chef
-    app.get('/api/users/:userId/likedRecipes', findLikedRecipes); // Route to fetch liked recipes
+    // app.get('/api/recipes', findAllRecipes);         // Route to fetch all recipes      // Route to like a recipe
+    app.post('/api/users/follow', followChef);       // Route to follow a chef// Route to fetch liked recipes
     app.get('/api/users/:userId/following', findFollowedChefs);   // Route to fetch followed chefs
 }
