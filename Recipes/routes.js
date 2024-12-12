@@ -82,7 +82,7 @@ export default function RecipeRoutes(app) {
         }
     };
     const findRecipeById = async (req, res) => {
-        const recipe = await dao.findRecipeById(req.params.recipeId);
+        const recipe = await dao.findRecipeById(req.params.recipeId).populate("chefId", "firstName lastName");
         res.json(recipe);
     };
 
