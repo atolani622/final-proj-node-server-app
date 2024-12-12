@@ -45,12 +45,12 @@ export default function RecipeRoutes(app) {
     const getLikedRecipes = async (req, res) => {
         const { userId } = req.params;
         const apiKey = process.env.SPOONACULAR_API_KEY;
-    
+
         try {
             // Fetch the user's liked recipe IDs
             const user = await UserModel.findById(userId);
             const recipeIds = user.likedRecipes; // Assume this is an array of IDs
-    
+
             // Fetch details for each recipe ID concurrently
             const recipeDetails = await Promise.all(
                 recipeIds.map(async (id) => {
@@ -58,7 +58,7 @@ export default function RecipeRoutes(app) {
                     return response.data;
                 })
             );
-    
+
             // Send the full recipe details back
             res.json(recipeDetails);
         } catch (error) {
@@ -66,9 +66,9 @@ export default function RecipeRoutes(app) {
             res.status(500).json({ error: "Failed to fetch liked recipes." });
         }
     };
-    
+
     app.get("/api/recipes/liked/:userId", getLikedRecipes);
-    
+
 
 
     // Follow a chef (add chefId to user's following array)
@@ -104,16 +104,19 @@ export default function RecipeRoutes(app) {
     };
 
     const searchRecipe = async (req, res) => {
-        const query = req.query.query
-        const url = `https://api.spoonacular.com/recipes/complexSearch?query=${query}&apiKey=${SPOONACULAR_API_KEY}`;
+        const { queryId } = req.params; // Extract queryId from route parameters
+        const url = `https://api.spoonacular.com/recipes/complexSearch?query=${queryId}&apiKey=${SPOONACULAR_API_KEY}`;
 
-        const response = await axios.get(url);
-        res.json(response.data.results)
-    }
+        try {
+            const response = await axios.get(url); // Fetch recipes from Spoonacular
+            res.json(response.data); // Send the data back to the client
+        } catch (error) {
+            console.error("Error fetching recipes from Spoonacular:", error.message);
+            res.status(500).json({ error: "Failed to fetch recipes." });
+        }
+    };
 
-    app.get(`/api/recipes/search`, searchRecipe);
-
-
+    app.get(`/api/recipes/search/:queryId`, searchRecipe);
 
     // Define routes
     // app.get('/api/recipes', findAllRecipes);         // Route to fetch all recipes      // Route to like a recipe
