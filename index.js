@@ -5,6 +5,7 @@ import "dotenv/config";
 
 import UserRoutes from "./Users/routes.js"
 import RecipeRoutes from "./Recipes/routes.js"
+import ReviewRoutes from "./Reviews/routes.js"
 
 import mongoose from "mongoose";
 const CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING || "mongodb://127.0.0.1:27017/project"
@@ -36,7 +37,8 @@ app.use(session(sessionOptions));
 app.use(express.json());
 
 UserRoutes(app);
-RecipeRoutes(app)
+RecipeRoutes(app);
+ReviewRoutes(app);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
