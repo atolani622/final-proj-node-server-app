@@ -6,5 +6,14 @@ export const likeRecipe = async (userId, recipeId) => {
     await UserModel.findByIdAndUpdate(userId, {
         $addToSet: { likedRecipes: recipeId },
     });
-};
+}
+
+export const followChef = async (userId, chefId) => {
+    await UserModel.findByIdAndUpdate(userId, {
+        $addToSet: { followedChefs: chefId },
+    });
+}
+
+export const findRecipeById = (recipeId) => model.findById(recipeId);
+
 

@@ -72,6 +72,7 @@ function UserRoutes(app) {
         res.json(200);
     };
 
+
     app.post('/api/users', createUser);
     app.get('/api/users', findAllUsers);
     app.get('/api/users/recent', findRecentUserAdded);

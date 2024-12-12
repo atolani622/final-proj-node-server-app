@@ -7,10 +7,11 @@ const userSchema = new mongoose.Schema({
     lastName: String,
     dob: Date,
     likedRecipes: [Object],
+    followedChefs: [Object],
     role: {
       type: String,
-      enum: ["STUDENT", "FACULTY", "ADMIN", "USER"],
-      default: "USER" },
+      enum: ["ADMIN", "STUDENT", "CHEF"],
+      default: "STUDENT" },
   },
   { collection: "users" });
 export default userSchema;
